@@ -11,7 +11,7 @@ run:
 	./$(TAR)
 
 clean:
-	@echo "deleting executable...";
+	@echo "deleting executable..."
 	rm -rf $(TAR)
 
 .PHONY: run clean
