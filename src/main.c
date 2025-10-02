@@ -132,7 +132,7 @@ void parseTokens(char **input, Variable *var) {
     }
 
     int foundIdx = -1;
-    for(int i=0; i<var->counter-1; i++) {
+    for(int i=0; i<var->counter; i++) {
         if(strcmp(var->name[i],token.name)==0) {
             foundIdx = 1;
             break;
@@ -193,7 +193,7 @@ void delete_variable(Variable *var,char **input) {
 
     int index = -1;
     int foundIdx = -1;
-    for(int i=0; i<var->counter-1; i++) {
+    for(int i=0; i<var->counter; i++) {
         if(strcmp(var->name[i],token.name)==0) {
             foundIdx = 1;
             index = i;
@@ -249,7 +249,7 @@ Expr parseExpr(char **input,Variable *var) {
     int foundIdx1 = -1; 
     float variable_value1;
 
-    for(int i=0; i<var->counter-1; i++) {
+    for(int i=0; i<var->counter; i++) {
         if(strcmp(var->name[i],token.name)==0) {
             if(var->type[i] == TOKEN_STRING) {
                 printf("Error: Cannot do operations with strings\n");
@@ -286,7 +286,7 @@ Expr parseExpr(char **input,Variable *var) {
     int foundIdx2 = -1;
     float variable_value2;
 
-    for(int i=0; i<var->counter-1; i++) {
+    for(int i=0; i<var->counter; i++) {
         if(strcmp(var->name[i],token.name)==0) {
             if(var->type[i] == TOKEN_STRING) {
                 printf("Error: Cannot do operations with strings\n");
@@ -412,7 +412,7 @@ int main(void) {
                 int foundIdx = -1;
 
                 token = getNextToken(&ptr);
-                for(int i = 0; i < var.counter-1; i++) {
+                for(int i = 0; i < var.counter; i++) {
                     if(strcmp(var.name[i], token.name) == 0) {
                         indexIdx = i;
                         foundIdx = 1;
@@ -451,7 +451,7 @@ int main(void) {
                 continue;
             }
 
-            for(int i = 0; i < var.counter-1; i++) {
+            for(int i = 0; i < var.counter; i++) {
                 if(var.type[i] == TOKEN_VALUE) {
                     printf("%s = %.2f\n", var.name[i], var.value[i]);
                 } else {
