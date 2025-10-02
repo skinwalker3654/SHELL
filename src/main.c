@@ -21,7 +21,7 @@ typedef enum {
     TOKEN_MINU,
     TOKEN_MULT,
     TOKEN_DIVI,
-    TOKEN_EOF_T,
+    TOKEN_EOF,
 } TokenType;
 
 typedef struct Token {
@@ -37,7 +37,7 @@ Token getNextToken(char **input) {
     if(isalpha(**input)) {
         Token token;
         int counter = 0;
-        while(isalnum(**input)) {
+        while(isalnum(**input) || **input=='.') {
             token.name[counter++] = **input;
             (*input)++;
         }
@@ -106,7 +106,7 @@ Token getNextToken(char **input) {
         case '$': return (Token){TOKEN_DOLLAR,"$"};
     }
 
-    return (Token){TOKEN_EOF_T, ""};
+    return (Token){TOKEN_EOF, ""};
 }
 
 typedef struct Variable {
@@ -170,7 +170,7 @@ void parseTokens(char **input, Variable *var) {
     }
 
     token = getNextToken(input);
-    if(token.type != TOKEN_EOF_T) {
+    if(token.type != TOKEN_EOF) {
         printf("Error: Invalid arguments count passed\n");
         return;
     }
@@ -308,7 +308,7 @@ Expr parseExpr(char **input,Variable *var) {
     obj.valuevar2 = variable_value2;
     token = getNextToken(input);
 
-    if(token.type != TOKEN_EOF_T) {
+    if(token.type != TOKEN_EOF) {
         printf("Error: Invalid arguments count passed\n");
         return (Expr){.type=TOKEN_ERR};
     }
@@ -331,26 +331,27 @@ void show_file_content(char *filename) {
 
 void help_command() {
     printf("\nCOMMANDS:\n");
-    printf("  set <name>=<value        | creates variables\n");
-    printf("  echo <string>            | prints a string\n");
-    printf("  echo $<variable>         | prints the variable and his value\n");
-    printf("  calc <var1> <op> <var2>  | calculates the operation with the variables value\n");
-    printf("  create <filename>        | creates a file\n");
-    printf("  rm <filename>            | deletes a file\n");
-    printf("  cd <directory>           | goes to a different directory\n");
-    printf("  cp <file1> <file2>       | copies the content of the first file to the second\n");
-    printf("  fsize <filename>         | it shows you the size of a file\n");
-    printf("  totalvars                | it shows you the total number of stored variables\n");
-    printf("  ls                       | prints directorys\n");
-    printf("  cls                      | clears the terminal screen\n");
-    printf("  info                     | prints systems information\n");
-    printf("  pwd                      | prints current working directory\n");
-    printf("  show                     | prints all the stored variables\n");
-    printf("  whoami                   | shows users shell name\n");
-    printf("  cat <file_name>          | shows files content\n");
-    printf("  delete <varname>         | deletes a variable\n");
-    printf("  help                     | shows this pannel\n");
-    printf("  exit                     | closes the program\n\n");
+    printf("  set <name>=<value         | creates variables\n");
+    printf("  echo <string>             | prints a string\n");
+    printf("  echo $<variable>          | prints the variable and his value\n");
+    printf("  calc <var1> <op> <var2>   | calculates the operation with the variables value\n");
+    printf("  create <filename>         | creates a file\n");
+    printf("  rm <filename>             | deletes a file\n");
+    printf("  cd <directory>            | goes to a different directory\n");
+    printf("  cp <file1> <file2>        | copies the content of the first file to the second\n");
+    printf("  fsize <filename>          | it shows you the size of a file\n");
+    printf("  write <filename> <text>   | writes text into a file\n");
+    printf("  totalvars                 | it shows you the total number of stored variables\n");
+    printf("  ls                        | prints directorys\n");
+    printf("  cls                       | clears the terminal screen\n");
+    printf("  info                      | prints systems information\n");
+    printf("  pwd                       | prints current working directory\n");
+    printf("  show                      | prints all the stored variables\n");
+    printf("  whoami                    | shows users shell name\n");
+    printf("  cat <file_name>           | shows files content\n");
+    printf("  delete <varname>          | deletes a variable\n");
+    printf("  help                      | shows this pannel\n");
+    printf("  exit                      | closes the program\n\n");
 }
 
 void print_neofetch() {
@@ -429,7 +430,7 @@ int main(void) {
                 }
 
                 token = getNextToken(&ptr);
-                if(token.type != TOKEN_EOF_T) {
+                if(token.type != TOKEN_EOF) {
                     printf("Error: Invalid arguments count passed\n");
                     continue;
                 }
@@ -489,6 +490,11 @@ int main(void) {
             while(token != NULL) {
                 tokens[counter++] = token;
                 token = strtok(NULL," ");
+            }
+
+            if(isdigit(tokens[1][0])) {
+                printf("Error: Cannot create a file with the first character a number\n");
+                continue;
             }
 
             if(counter == 2) {
@@ -625,6 +631,40 @@ int main(void) {
                 printf("Error: Invalid arguments count passed\n");
                 continue;
             }
+        } else if(strcmp(command,"write")==0) {
+            char *ptr = input;
+            getNextToken(&ptr);
+
+            Token token = getNextToken(&ptr);
+            if(token.type != TOKEN_NAME) {
+                printf("Error: Invalid file name '%s'\n",token.name);
+                continue;
+            }
+
+            FILE *file = fopen(token.name,"w");
+            if(!file) {
+                printf("Error: Failed to open the file\n");
+                continue;
+            }
+
+            token = getNextToken(&ptr);
+            if(token.type != TOKEN_STRING) {
+                printf("Error: Text must be in inside \"\"\n");
+                fclose(file);
+                continue;
+            }
+
+            fprintf(file,"%s\n",token.stringValue);
+            fclose(file);
+
+            token = getNextToken(&ptr);
+            if(token.type != TOKEN_EOF) {
+                printf("Error: Invalid arguments count passed\n");
+                fclose(file);
+                continue;
+            }
+
+            printf("File saved succesfully\n");
         } else if(strcmp(command,"delete")==0) {
             char *ptr = input;
             delete_variable(&var,&ptr);
