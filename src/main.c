@@ -139,7 +139,7 @@ void parseTokens(char **input, Variable *var) {
         }
     }
 
-    if(foundIdx == 1) {
+    if(foundIdx != -1) {
         printf("Error: This variable name already exists\n");
         return;
     }
@@ -440,6 +440,9 @@ int main(void) {
                 }
             } else if(token.type == TOKEN_NAME) {
                 printf("%s\n",token.name);
+                continue;
+            } else if(token.type == TOKEN_STRING) {
+                printf("%s\n",token.stringValue);
                 continue;
             } else {
                 printf("Error: '$' is missing\n");
