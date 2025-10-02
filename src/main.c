@@ -4,7 +4,8 @@
 #include <unistd.h>
 #include <ctype.h>
 
-#define USER_NAME "skinwalker"
+/*HERE ARE THE MACROS YOU CAN CHANGE THEM TO YOUR PREFERENCES*/
+#define USERNAME "skinwalker"
 #define PASSWORD 3654
 
 typedef enum {
@@ -338,6 +339,8 @@ void help_command() {
     printf("  rm <filename>            | deletes a file\n");
     printf("  cd <directory>           | goes to a different directory\n");
     printf("  cp <file1> <file2>       | copies the content of the first file to the second\n");
+    printf("  fsize <filename>         | it shows you the size of a file\n");
+    printf("  totalvars                | it shows you the total number of stored variables\n");
     printf("  ls                       | prints directorys\n");
     printf("  cls                      | clears the terminal screen\n");
     printf("  info                     | prints systems information\n");
@@ -596,11 +599,39 @@ int main(void) {
                 printf("Error: Invalid arguments count passed\n");
                 continue;
             }
+        } else if(strcmp(command,"fsize")==0) {
+            char *tokens[10];
+            int counter = 0;
+
+            char *token = strtok(input," ");
+            while(token != NULL) {
+                tokens[counter++] = token;
+                token = strtok(NULL," ");
+            }
+
+            if(counter == 2) {
+                FILE *file = fopen(tokens[1],"r");
+                if(!file) {
+                    printf("Error: Failed to open the file\n");
+                    continue;
+                }
+
+                char ch;
+                int countChars = 0;
+                while((ch = getc(file))!=EOF) countChars++;
+                fclose(file);
+                printf("Total bytes of \"%s\" -> %d\n",tokens[1],countChars);
+            } else {
+                printf("Error: Invalid arguments count passed\n");
+                continue;
+            }
         } else if(strcmp(command,"delete")==0) {
             char *ptr = input;
             delete_variable(&var,&ptr);
         } else if(strcmp(input,"whoami")==0) {
-            printf("USER: %s | PASSWORD: %d\n",USER_NAME,PASSWORD);
+            printf("USER: %s | PASSWORD: %d\n",USERNAME,PASSWORD);
+        } else if(strcmp(input,"totalvars")==0) {
+            printf("Total variables: %d\n",var.counter);
         } else if(strcmp(input,"cls")==0) {
             system("clear");
         } else if(strcmp(input,"ls")==0) {
