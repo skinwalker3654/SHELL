@@ -5,6 +5,16 @@
 #include <ctype.h>
 #include <math.h>
 
+#define RESET   "\033[0m"
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
+#define BLUE    "\033[34m"
+#define MAGENTA "\033[35m"
+#define CYAN    "\033[36m"
+#define WHITE   "\033[37m"
+#define BOLD    "\033[1m"
+
 /*HERE ARE THE MACROS YOU CAN CHANGE THEM TO YOUR PREFERENCES*/
 #define USERNAME "skinwalker"
 #define PASSWORD 3654
@@ -71,7 +81,7 @@ Token getNextToken(char **input) {
 
         float number = strtof(name,&endPtr);
         if(*endPtr != '\0') {
-            printf("Error: Invalid number '%s'\n",name);
+            printf(RED"Error: Invalid number '%s'\n"RESET,name);
             return (Token){TOKEN_ERR,""};
         }
 
@@ -125,13 +135,13 @@ void parseTokens(char **input, Variable *var) {
     int idx = var->counter;
 
     if(token.type != TOKEN_SET) {
-        printf("Error: 'set' is missing\n");
+        printf(RED"Error: 'set' is missing\n"RESET);
         return;
     }
 
     token = getNextToken(input);
     if(token.type != TOKEN_NAME) {
-        printf("Error: Invalid variable name\n");
+        printf(RED"Error: Invalid variable name\n"RESET);
         return;
     }
 
@@ -144,20 +154,20 @@ void parseTokens(char **input, Variable *var) {
     }
 
     if(foundIdx != -1) {
-        printf("Error: This variable name already exists\n");
+        printf(RED"Error: This variable name already exists\n"RESET);
         return;
     }
 
     strcpy(var->name[idx], token.name);
     token = getNextToken(input);
     if(token.type != TOKEN_EQUAL) {
-        printf("Error: '=' is missing\n");
+        printf(RED"Error: '=' is missing\n"RESET);
         return;
     }
 
     token = getNextToken(input);
     if(token.type != TOKEN_VALUE && token.type != TOKEN_STRING) {
-        printf("Error: Invalid variable value\n");
+        printf(RED"Error: Invalid variable value\n"RESET);
         return;
     } else {
         if(token.type == TOKEN_VALUE) {
@@ -167,14 +177,14 @@ void parseTokens(char **input, Variable *var) {
             strcpy(var->stringValue[idx],token.stringValue);
             var->type[idx] = TOKEN_STRING;
         } else {
-            printf("Error: Strings need \"\"\n");
+            printf(RED"Error: Strings need \"\"\n"RESET);
             return;
         }
     }
 
     token = getNextToken(input);
     if(token.type != TOKEN_EOF) {
-        printf("Error: Invalid arguments count passed\n");
+        printf(RED"Error: Invalid arguments count passed\n"RESET);
         return;
     }
 
@@ -183,13 +193,13 @@ void parseTokens(char **input, Variable *var) {
 
 void delete_variable(Variable *var,char **input) {
     if(var->counter == 0) {
-        printf("Error: List is empty\n");
+        printf(RED"Error: List is empty\n"RESET);
         return;
     }
 
     Token token = getNextToken(input);
     if(strcmp(token.name,"delete")!=0) {
-        printf("Error: Invalid command '%s'\n",token.name);
+        printf(RED"Error: Invalid command '%s'\n"RESET,token.name);
         return;
     }
 
@@ -206,7 +216,7 @@ void delete_variable(Variable *var,char **input) {
     }
 
     if(foundIdx == -1) {
-        printf("Error: Variable with name '%s' not found\n",token.name);
+        printf(RED"Error: Variable with name '%s' not found\n"RESET,token.name);
         return;
     }
 
@@ -225,7 +235,7 @@ void delete_variable(Variable *var,char **input) {
     }
 
     var->counter--;
-    printf("Variable deleted succesfully\n");
+    printf(GREEN"Variable deleted succesfully\n"RESET);
 }
 
 typedef struct Expr {
@@ -240,7 +250,7 @@ Expr parseExpr(char **input,Variable *var) {
     
     Token token = getNextToken(input);
     if(token.type != TOKEN_CALC) {
-        printf("Error: 'calc' is missing\n");
+        printf(RED"Error: 'calc' is missing\n"RESET);
         return (Expr){.type=TOKEN_ERR};
     }
 
@@ -251,7 +261,7 @@ Expr parseExpr(char **input,Variable *var) {
         for(int i=0; i<var->counter; i++) {
             if(strcmp(var->name[i],token.name)==0) {
                 if(var->type[i] == TOKEN_STRING) {
-                    printf("Error: Cannot do operations with strings\n");
+                    printf(RED"Error: Cannot do operations with strings\n"RESET);
                     return (Expr){.type=TOKEN_ERR};
                 }
 
@@ -262,7 +272,7 @@ Expr parseExpr(char **input,Variable *var) {
         }
 
         if(foundIdx1 == -1) {
-            printf("Error: Variable with name '%s' not found\n",token.name);
+            printf(RED"Error: Variable with name '%s' not found\n"RESET,token.name);
             return (Expr){.type=TOKEN_ERR};
         }
 
@@ -270,7 +280,7 @@ Expr parseExpr(char **input,Variable *var) {
     } else if(token.type == TOKEN_VALUE) {
         obj.valuevar1 = token.value;
     } else {
-        printf("Error: Invalid variable name '%s'\n",token.name);
+        printf(RED"Error: Invalid variable name '%s'\n"RESET,token.name);
         return (Expr){.type=TOKEN_ERR};
     }
 
@@ -280,7 +290,7 @@ Expr parseExpr(char **input,Variable *var) {
        token.type != TOKEN_MULT &&
        token.type != TOKEN_DIVI &&
        token.type != TOKEN_POWE) {
-        printf("Error: Invalid operation '%s'\n",token.name);
+        printf(RED"Error: Invalid operation '%s'\n"RESET,token.name);
         return (Expr){.type=TOKEN_ERR};
     }
 
@@ -293,7 +303,7 @@ Expr parseExpr(char **input,Variable *var) {
         for(int i=0; i<var->counter; i++) {
             if(strcmp(var->name[i],token.name)==0) {
                 if(var->type[i] == TOKEN_STRING) {
-                    printf("Error: Cannot do operations with strings\n");
+                    printf(RED"Error: Cannot do operations with strings\n"RESET);
                     return (Expr){.type=TOKEN_ERR};
                 }
 
@@ -304,7 +314,7 @@ Expr parseExpr(char **input,Variable *var) {
         }
 
         if(foundIdx2 == -1) {
-            printf("Error: Variable with name '%s' not found\n",token.name);
+            printf(RED"Error: Variable with name '%s' not found\n"RESET,token.name);
             return (Expr){.type=TOKEN_ERR};
         }
 
@@ -312,13 +322,13 @@ Expr parseExpr(char **input,Variable *var) {
     } else if(token.type == TOKEN_VALUE) {
         obj.valuevar2 = token.value;
     } else {
-        printf("Error: Invalid variable name '%s'\n",token.name);
+        printf(RED"Error: Invalid variable name '%s'\n"RESET,token.name);
         return (Expr){.type=TOKEN_ERR};
     }
 
     token = getNextToken(input);
     if(token.type != TOKEN_EOF) {
-        printf("Error: Invalid arguments count passed\n");
+        printf(RED"Error: Invalid arguments count passed\n"RESET);
         return (Expr){.type=TOKEN_ERR};
     }
 
@@ -328,7 +338,7 @@ Expr parseExpr(char **input,Variable *var) {
 void show_file_content(char *filename) {
     FILE *file = fopen(filename,"r");
     if(!file) {
-        printf("Error: Failed to open this file\n");
+        printf(RED"Error: Failed to open this file\n"RESET);
         return;
     }
 
@@ -340,39 +350,39 @@ void show_file_content(char *filename) {
 
 void help_command() {
     printf("\nCommands:\n");
-    printf("  set <name>=<value>        | creates variables\n");
-    printf("  echo <string>             | prints a string\n");
-    printf("  echo $<variable>          | prints the variable and his value\n");
-    printf("  calc <var1> <op> <var2>   | calculates the operation by the variables value\n");
-    printf("  calc <num1> <op> <num2>   | calculates the operation by the values you passed\n");
-    printf("  create <filename>         | creates a file\n");
-    printf("  rm <filename>             | deletes a file\n");
-    printf("  cd <directory>            | goes to a different directory\n");
-    printf("  cp <file1> <file2>        | copies the content of the first file to the second\n");
-    printf("  fsize <filename>          | it shows you the size of a file\n");
-    printf("  write <filename> <text>   | writes text into a file\n");
-    printf("  countvars                 | it shows you the total number of stored variables\n");
-    printf("  ls                        | prints directorys\n");
-    printf("  cls                       | clears the terminal screen\n");
-    printf("  info                      | prints systems information\n");
-    printf("  pwd                       | prints current working directory\n");
-    printf("  show                      | prints all the stored variables\n");
-    printf("  whoami                    | shows users shell name\n");
-    printf("  cat <file_name>           | shows files content\n");
-    printf("  delete <varname>          | deletes a variable\n");
-    printf("  help                      | shows this pannel\n");
-    printf("  exit                      | closes the program\n\n");
+    printf(CYAN"  set <name>=<value>        | creates variables\n"RESET);
+    printf(CYAN"  echo <string>             | prints a string\n"RESET);
+    printf(CYAN"  echo $<variable>          | prints the variable and his value\n"RESET);
+    printf(CYAN"  calc <var1> <op> <var2>   | calculates the operation by the variables value\n"RESET);
+    printf(CYAN"  calc <num1> <op> <num2>   | calculates the operation by the values you passed\n"RESET);
+    printf(CYAN"  create <filename>         | creates a file\n"RESET);
+    printf(CYAN"  rm <filename>             | deletes a file\n"RESET);
+    printf(CYAN"  cd <directory>            | goes to a different directory\n"RESET);
+    printf(CYAN"  cp <file1> <file2>        | copies the content of the first file to the second\n"RESET);
+    printf(CYAN"  fsize <filename>          | it shows you the size of a file\n"RESET);
+    printf(CYAN"  write <filename> <text>   | writes text into a file\n"RESET);
+    printf(CYAN"  countvars                 | it shows you the total number of stored variables\n"RESET);
+    printf(CYAN"  ls                        | prints directorys\n"RESET);
+    printf(CYAN"  cls                       | clears the terminal screen\n"RESET);
+    printf(CYAN"  info                      | prints systems information\n"RESET);
+    printf(CYAN"  pwd                       | prints current working directory\n"RESET);
+    printf(CYAN"  show                      | prints all the stored variables\n"RESET);
+    printf(CYAN"  whoami                    | shows users shell name\n"RESET);
+    printf(CYAN"  cat <file_name>           | shows files content\n"RESET);
+    printf(CYAN"  delete <varname>          | deletes a variable\n"RESET);
+    printf(CYAN"  help                      | shows this pannel\n"RESET);
+    printf(CYAN"  exit                      | closes the program\n\n");
 }
 
 void print_neofetch() {
     printf("\n");
-    printf("  ███╗   ██╗ █████╗  ██████╗ ███████╗     | CPU: Intel i8 Chip      | OS: Linux 6.5\n");
-    printf("  ████╗  ██║██╔══██╗██╔════╝ ██╔════╝     | GPU: RTX 4090           | Kernel: x86_64\n");
-    printf("  ██╔██╗ ██║███████║██║  ███╗█████╗       | SSD: 1TB                | Shell: bash\n");
-    printf("  ██║╚██╗██║██╔══██║██║   ██║██╔══╝       | RAM: 64GB               | DE: GNOME 45\n");
-    printf("  ██║ ╚████║██║  ██║╚██████╔╝███████╗     | NAME: Hacked_Linux      | Uptime: 12h 34m\n");
-    printf("  ╚═╝  ╚═══╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝     | Host: Custom-PC         | Packages: 432\n");
-    printf("\n");
+    printf(RED   "  ███╗   ██╗ █████╗  ██████╗ ███████╗ " RESET YELLOW "    | CPU: Intel i8 Chip      | OS: Linux 6.5\n");
+    printf(GREEN "  ████╗  ██║██╔══██╗██╔════╝ ██╔════╝ " RESET BLUE   "    | GPU: RTX 4090           | Kernel: x86_64\n");
+    printf(CYAN  "  ██╔██╗ ██║███████║██║  ███╗█████╗   " RESET MAGENTA"    | SSD: 1TB                | Shell: bash\n");
+    printf(WHITE "  ██║╚██╗██║██╔══██║██║   ██║██╔══╝   " RESET YELLOW "    | RAM: 64GB               | DE: GNOME 45\n");
+    printf(RED   "  ██║ ╚████║██║  ██║╚██████╔╝███████╗ " RESET CYAN   "    | NAME: Hacked_Linux      | Uptime: 12h 34m\n");
+    printf(GREEN "  ╚═╝  ╚═══╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝ " RESET BLUE   "    | Host: Custom-PC         | Packages: 432\n");
+    printf("\n"); 
 }
 
 int main(void) {
@@ -382,7 +392,7 @@ int main(void) {
     Expr expr;
 
     while(1) {
-        printf(">> ");
+        printf(BOLD CYAN"%s"RESET " " GREEN ">> " RESET,USERNAME);
         fgets(input, sizeof(input), stdin);
         input[strcspn(input, "\n")] = 0;
 
@@ -405,7 +415,7 @@ int main(void) {
                 printf("%.2f\n",expr.valuevar1*expr.valuevar2);
             } else if(strcmp(expr.op,"/")==0) {
                 if(expr.valuevar2 == 0) {
-                    printf("Error: Division by 0!\n");
+                    printf(RED"Error: Division by 0!\n"RESET);
                     continue;
                 } else {
                     printf("%.2f\n",expr.valuevar1/expr.valuevar2);
@@ -421,7 +431,7 @@ int main(void) {
             Token token = getNextToken(&ptr);
             if(token.type == TOKEN_DOLLAR) {
                 if(var.counter == 0) {
-                    printf("Error: List is empty\n");
+                    printf(RED"Error: List is empty\n"RESET);
                     continue;
                 }
 
@@ -438,13 +448,13 @@ int main(void) {
                 }
 
                 if(foundIdx == -1) {
-                    printf("Error: Variable with the name '%s' not found\n",token.name);
+                    printf(RED"Error: Variable with the name '%s' not found\n"RESET,token.name);
                     continue;
                 }
 
                 token = getNextToken(&ptr);
                 if(token.type != TOKEN_EOF) {
-                    printf("Error: Invalid arguments count passed\n");
+                    printf(RED"Error: Invalid arguments count passed\n"RESET);
                     continue;
                 }
 
@@ -462,20 +472,20 @@ int main(void) {
                 printf("%s\n",token.stringValue);
                 continue;
             } else {
-                printf("Error: '$' is missing\n");
+                printf(RED"Error: '$' is missing\n"RESET);
                 continue;
             }
         } else if(strcmp(input, "show") == 0) {
             if(var.counter == 0) {
-                printf("Error: List is empty\n");
+                printf(RED"Error: List is empty\n"RESET);
                 continue;
             }
 
             for(int i = 0; i < var.counter; i++) {
                 if(var.type[i] == TOKEN_VALUE) {
-                    printf("%s = %.2f\n", var.name[i], var.value[i]);
+                    printf(CYAN "%s"RESET " = " YELLOW "%.2f\n" RESET, var.name[i], var.value[i]);
                 } else {
-                    printf("%s = \"%s\"\n",var.name[i], var.stringValue[i]);
+                    printf(CYAN "%s"RESET " = " MAGENTA "\"%s\"\n" RESET,var.name[i], var.stringValue[i]);
                 } 
             }
         } else if(strcmp(command,"cat")==0) {
@@ -492,7 +502,7 @@ int main(void) {
                 show_file_content(tokens[1]);
                 continue;
             } else {
-                printf("Error: Invalid arguments count passed\n");
+                printf(RED"Error: Invalid arguments count passed\n"RESET);
                 continue;
             }
         } else if(strcmp(command,"create")==0) {
@@ -506,7 +516,7 @@ int main(void) {
             }
 
             if(isdigit(tokens[1][0])) {
-                printf("Error: Cannot create a file with the first character a number\n");
+                printf(RED"Error: Cannot create a file with the first character a number\n"RESET);
                 continue;
             }
 
@@ -515,7 +525,7 @@ int main(void) {
                 strcat(prompt,tokens[1]);
                 system(prompt);
             } else {
-                printf("Error: Invalid arguments count passed\n");
+                printf(RED"Error: Invalid arguments count passed\n"RESET);
                 continue;
             }
         } else if(strcmp(command,"rm")==0) {
@@ -531,14 +541,14 @@ int main(void) {
             if(counter == 2) {
                 int check = remove(tokens[1]);
                 if(check == -1) {
-                    printf("Error: File not found\n");
+                    printf(RED"Error: File not found\n"RESET);
                     continue;
                 }
 
-                printf("Filed deleted succesfully\n");
+                printf(GREEN"File deleted succesfully\n"RESET);
                 continue;
             } else {
-                printf("Error: Invalid arguments count passed\n");
+                printf(RED"Error: Invalid arguments count passed\n"RESET);
                 continue;
             }
         } else if(strcmp(command,"cd")==0) {
@@ -559,11 +569,11 @@ int main(void) {
 
                 int check = chdir(tokens[1]);
                 if(check == -1) {
-                    printf("Error: Invalid directory '%s'\n",tokens[1]);
+                    printf(RED"Error: Invalid directory '%s'\n"RESET,tokens[1]);
                     continue;
                 }
             } else {
-                printf("Error: Invalid arguments count passed\n");
+                printf(RED"Error: Invalid arguments count passed\n"RESET);
                 continue;
             }
         } else if(strcmp(input,"pwd")==0) {
@@ -572,12 +582,12 @@ int main(void) {
 
             char *buff = malloc((size_t)size);
             if(buff == NULL) {
-                printf("Error: Could not allocate buffer\n");
+                printf(RED"Error: Could not allocate buffer\n"RESET);
                 continue;
             }
 
             if(getcwd(buff, (size_t)size) != NULL) {
-                printf("%s\n", buff);
+                printf(BLUE"%s\n"RESET, buff);
             } else {
                 perror("getcwd");
             }
@@ -596,13 +606,13 @@ int main(void) {
             if(counter == 3) {
                 FILE *file1 = fopen(tokens[1], "r");
                 if(file1 == NULL) {
-                    printf("Error: Failed to open source file '%s'\n", tokens[1]);
+                    printf(RED"Error: Failed to open source file '%s'\n"RESET, tokens[1]);
                     continue;
                 }
 
                 FILE *file2 = fopen(tokens[2], "w");
                 if(file2 == NULL) {
-                    printf("Error: Failed to create destination file '%s'\n", tokens[2]);
+                    printf(RED"Error: Failed to create destination file '%s'\n"RESET, tokens[2]);
                     fclose(file1);
                     continue;
                 }
@@ -610,12 +620,11 @@ int main(void) {
                 int ch;
                 while((ch = fgetc(file1)) != EOF) 
                     fputc(ch, file2);
-                
 
                 fclose(file1);
                 fclose(file2);
             } else {
-                printf("Error: Invalid arguments count passed\n");
+                printf(RED"Error: Invalid arguments count passed\n"RESET);
                 continue;
             }
         } else if(strcmp(command,"fsize")==0) {
@@ -631,7 +640,7 @@ int main(void) {
             if(counter == 2) {
                 FILE *file = fopen(tokens[1],"r");
                 if(!file) {
-                    printf("Error: Failed to open the file\n");
+                    printf(RED"Error: Failed to open the file\n"RESET);
                     continue;
                 }
 
@@ -641,7 +650,7 @@ int main(void) {
                 fclose(file);
                 printf("Total bytes of \"%s\" -> %d\n",tokens[1],countChars);
             } else {
-                printf("Error: Invalid arguments count passed\n");
+                printf(RED"Error: Invalid arguments count passed\n"RESET);
                 continue;
             }
         } else if(strcmp(command,"write")==0) {
@@ -650,13 +659,13 @@ int main(void) {
 
             Token token = getNextToken(&ptr);
             if(token.type != TOKEN_NAME) {
-                printf("Error: Invalid file name '%s'\n",token.name);
+                printf(RED"Error: Invalid file name '%s'\n"RESET,token.name);
                 continue;
             }
 
             FILE *file = fopen(token.name,"a");
             if(!file) {
-                printf("Error: Failed to open the file\n");
+                printf(RED"Error: Failed to open the file\n"RESET);
                 continue;
             }
 
@@ -672,19 +681,19 @@ int main(void) {
 
             token = getNextToken(&ptr);
             if(token.type != TOKEN_EOF) {
-                printf("Error: Invalid arguments count passed\n");
+                printf(RED"Error: Invalid arguments count passed\n"RESET);
                 fclose(file);
                 continue;
             }
 
-            printf("File saved succesfully\n");
+            printf(GREEN"File saved succesfully\n"RESET);
         } else if(strcmp(command,"delete")==0) {
             char *ptr = input;
             delete_variable(&var,&ptr);
         } else if(strcmp(input,"whoami")==0) {
-            printf("USER: %s | PASSWORD: %d\n",USERNAME,PASSWORD);
+            printf(BLUE"USER: "RESET CYAN"%s"RESET " | " BLUE "PASSWORD: "RESET CYAN"%d\n"RESET,USERNAME,PASSWORD);
         } else if(strcmp(input,"countvars")==0) {
-            printf("Total variables: %d\n",var.counter);
+            printf(BLUE"Total variables: %d\n"RESET,var.counter);
         } else if(strcmp(input,"cls")==0) {
             system("clear");
         } else if(strcmp(input,"ls")==0) {
@@ -697,7 +706,7 @@ int main(void) {
             printf("Exiting...\n");
             return 0;
         } else {
-            printf("Error: Invalid command '%s'\n", input);
+            printf(RED"Error: Invalid command '%s'\n"RESET, input);
             continue;
         }
     }
