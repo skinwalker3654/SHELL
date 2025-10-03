@@ -703,7 +703,7 @@ int main(void) {
         } else if(strcmp(input,"info")==0) {
             print_neofetch();
         } else if(strcmp(input, "exit") == 0) {
-            printf("Exiting...\n");
+            printf(MAGENTA"Exiting...\n"RESET);
             return 0;
         } else {
             printf(RED"Error: Invalid command '%s'\n"RESET, input);
