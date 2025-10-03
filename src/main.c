@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <math.h>
 
 /*HERE ARE THE MACROS YOU CAN CHANGE THEM TO YOUR PREFERENCES*/
 #define USERNAME "skinwalker"
@@ -21,6 +22,7 @@ typedef enum {
     TOKEN_MINU,
     TOKEN_MULT,
     TOKEN_DIVI,
+    TOKEN_POWE,
     TOKEN_EOF,
 } TokenType;
 
@@ -102,6 +104,7 @@ Token getNextToken(char **input) {
         case '-': return (Token){TOKEN_MINU,"-"};
         case '*': return (Token){TOKEN_MULT,"*"};
         case '/': return (Token){TOKEN_DIVI,"/"};
+        case '^': return (Token){TOKEN_POWE,"^"};
         case '=': return (Token){TOKEN_EQUAL,"="};
         case '$': return (Token){TOKEN_DOLLAR,"$"};
     }
@@ -242,36 +245,41 @@ Expr parseExpr(char **input,Variable *var) {
     }
 
     token = getNextToken(input);
-    if(token.type != TOKEN_NAME) {
+    if(token.type == TOKEN_NAME) {
+        int foundIdx1 = -1; 
+        float variable_value1;
+        for(int i=0; i<var->counter; i++) {
+            if(strcmp(var->name[i],token.name)==0) {
+                if(var->type[i] == TOKEN_STRING) {
+                    printf("Error: Cannot do operations with strings\n");
+                    return (Expr){.type=TOKEN_ERR};
+                }
+
+                foundIdx1 = 1;
+                variable_value1 = var->value[i];
+                break;
+            }
+        }
+
+        if(foundIdx1 == -1) {
+            printf("Error: Variable with name '%s' not found\n",token.name);
+            return (Expr){.type=TOKEN_ERR};
+        }
+
+        obj.valuevar1 = variable_value1;
+    } else if(token.type == TOKEN_VALUE) {
+        obj.valuevar1 = token.value;
+    } else {
         printf("Error: Invalid variable name '%s'\n",token.name);
         return (Expr){.type=TOKEN_ERR};
     }
 
-    int foundIdx1 = -1; 
-    float variable_value1;
-
-    for(int i=0; i<var->counter; i++) {
-        if(strcmp(var->name[i],token.name)==0) {
-            if(var->type[i] == TOKEN_STRING) {
-                printf("Error: Cannot do operations with strings\n");
-                return (Expr){.type=TOKEN_ERR};
-            }
-
-            foundIdx1 = 1;
-            variable_value1 = var->value[i];
-            break;
-        }
-    }
-
-    if(foundIdx1 == -1) {
-        printf("Error: Variable with name '%s' not found\n",token.name);
-        return (Expr){.type=TOKEN_ERR};
-    }
-
-    obj.valuevar1 = variable_value1;
-
     token = getNextToken(input);
-    if(token.type != TOKEN_PLUS && token.type != TOKEN_MINU && token.type != TOKEN_MULT && token.type != TOKEN_DIVI) {
+    if(token.type != TOKEN_PLUS && 
+       token.type != TOKEN_MINU &&
+       token.type != TOKEN_MULT &&
+       token.type != TOKEN_DIVI &&
+       token.type != TOKEN_POWE) {
         printf("Error: Invalid operation '%s'\n",token.name);
         return (Expr){.type=TOKEN_ERR};
     }
@@ -279,35 +287,36 @@ Expr parseExpr(char **input,Variable *var) {
     strcpy(obj.op,token.name);
 
     token = getNextToken(input);
-    if(token.type != TOKEN_NAME) {
+    if(token.type == TOKEN_NAME) {
+        int foundIdx2 = -1;
+        float variable_value2;
+        for(int i=0; i<var->counter; i++) {
+            if(strcmp(var->name[i],token.name)==0) {
+                if(var->type[i] == TOKEN_STRING) {
+                    printf("Error: Cannot do operations with strings\n");
+                    return (Expr){.type=TOKEN_ERR};
+                }
+
+                foundIdx2 = 1;
+                variable_value2 = var->value[i];
+                break;
+            }
+        }
+
+        if(foundIdx2 == -1) {
+            printf("Error: Variable with name '%s' not found\n",token.name);
+            return (Expr){.type=TOKEN_ERR};
+        }
+
+        obj.valuevar2 = variable_value2;
+    } else if(token.type == TOKEN_VALUE) {
+        obj.valuevar2 = token.value;
+    } else {
         printf("Error: Invalid variable name '%s'\n",token.name);
         return (Expr){.type=TOKEN_ERR};
     }
 
-    int foundIdx2 = -1;
-    float variable_value2;
-
-    for(int i=0; i<var->counter; i++) {
-        if(strcmp(var->name[i],token.name)==0) {
-            if(var->type[i] == TOKEN_STRING) {
-                printf("Error: Cannot do operations with strings\n");
-                return (Expr){.type=TOKEN_ERR};
-            }
-
-            foundIdx2 = 1;
-            variable_value2 = var->value[i];
-            break;
-        }
-    }
-
-    if(foundIdx2 == -1) {
-        printf("Error: Variable with name '%s' not found\n",token.name);
-        return (Expr){.type=TOKEN_ERR};
-    }
-
-    obj.valuevar2 = variable_value2;
     token = getNextToken(input);
-
     if(token.type != TOKEN_EOF) {
         printf("Error: Invalid arguments count passed\n");
         return (Expr){.type=TOKEN_ERR};
@@ -330,18 +339,19 @@ void show_file_content(char *filename) {
 }
 
 void help_command() {
-    printf("\nCOMMANDS:\n");
-    printf("  set <name>=<value         | creates variables\n");
+    printf("\nCommands:\n");
+    printf("  set <name>=<value>        | creates variables\n");
     printf("  echo <string>             | prints a string\n");
     printf("  echo $<variable>          | prints the variable and his value\n");
-    printf("  calc <var1> <op> <var2>   | calculates the operation with the variables value\n");
+    printf("  calc <var1> <op> <var2>   | calculates the operation by the variables value\n");
+    printf("  calc <num1> <op> <num2>   | calculates the operation by the values you passed\n");
     printf("  create <filename>         | creates a file\n");
     printf("  rm <filename>             | deletes a file\n");
     printf("  cd <directory>            | goes to a different directory\n");
     printf("  cp <file1> <file2>        | copies the content of the first file to the second\n");
     printf("  fsize <filename>          | it shows you the size of a file\n");
     printf("  write <filename> <text>   | writes text into a file\n");
-    printf("  totalvars                 | it shows you the total number of stored variables\n");
+    printf("  countvars                 | it shows you the total number of stored variables\n");
     printf("  ls                        | prints directorys\n");
     printf("  cls                       | clears the terminal screen\n");
     printf("  info                      | prints systems information\n");
@@ -400,6 +410,9 @@ int main(void) {
                 } else {
                     printf("%.2f\n",expr.valuevar1/expr.valuevar2);
                 }
+            } else if(strcmp(expr.op,"^")==0) {
+                printf("%.2f\n",pow(expr.valuevar1,expr.valuevar2));
+                continue;
             }
         } else if(strcmp(command, "echo") == 0) {
             char *ptr = input;
@@ -670,7 +683,7 @@ int main(void) {
             delete_variable(&var,&ptr);
         } else if(strcmp(input,"whoami")==0) {
             printf("USER: %s | PASSWORD: %d\n",USERNAME,PASSWORD);
-        } else if(strcmp(input,"totalvars")==0) {
+        } else if(strcmp(input,"countvars")==0) {
             printf("Total variables: %d\n",var.counter);
         } else if(strcmp(input,"cls")==0) {
             system("clear");

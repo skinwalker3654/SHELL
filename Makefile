@@ -4,7 +4,7 @@ TAR = main
 
 $(TAR): $(SRC)
 	@echo "executing the code..."
-	$(CC) $< -o $@
+	$(CC) $< -o $@ -lm
 
 run:
 	@echo "Running..."
