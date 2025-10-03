@@ -654,7 +654,7 @@ int main(void) {
                 continue;
             }
 
-            FILE *file = fopen(token.name,"w");
+            FILE *file = fopen(token.name,"a");
             if(!file) {
                 printf("Error: Failed to open the file\n");
                 continue;
