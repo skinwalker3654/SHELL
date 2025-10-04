@@ -629,8 +629,9 @@ int main(void) {
                 continue;
             }
 
-            if(getcwd(buff, (size_t)size)!=NULL)
-                printf(BLUE"%s\n"RESET, buff); 
+            getcwd(buff, (size_t)size);
+            printf(BLUE"%s\n"RESET, buff); 
+
             free(buff);
         } else if(strcmp(command,"cp")==0) {
             char *tokens[10];
