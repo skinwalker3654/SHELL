@@ -130,8 +130,8 @@ typedef struct Variable {
     int counter;
 } Variable;
 
-void save_to_file(Variable *ptr) {
-    FILE *file = fopen("data.txt","w");
+void save_to_file(char *fileNname,Variable *ptr) {
+    FILE *file = fopen(fileNname,"w");
     if(!file) {
         printf("Error: Failed to open the file\n");
         return;
@@ -209,8 +209,8 @@ void parseTokens(char **input, Variable *var) {
     var->counter++;
 }
 
-void load_from_file(Variable *ptr) {
-    FILE *file = fopen("data.txt","r");
+void load_from_file(char *fileName,Variable *ptr) {
+    FILE *file = fopen(fileName,"r");
     if(!file) { return; }
 
     char line[100];
@@ -409,13 +409,31 @@ void print_neofetch() {
     printf("\n"); 
 }
 
+char *find_pwd() {
+    long size = pathconf(".",_PC_PATH_MAX);
+    if(size == -1) size = 4096;
+
+    char *buff = malloc((size_t)size);
+    if(!buff) {
+        printf(RED"Error: Memory allocation failed\n"RESET);
+        return NULL;
+    }
+
+    getcwd(buff, (size_t)size);
+    strcat(buff,"/data.txt");
+    return buff;
+}
+
 int main(void) {
     Variable var = {.counter = 0};
     char input[100];
     char command[50];
     Expr expr;
 
-    load_from_file(&var);
+    char *buffer = find_pwd();
+    if(buffer == NULL) return 1;
+
+    load_from_file(buffer,&var);
     while(1) {
         printf(BOLD CYAN"%s"RESET " " GREEN ">> " RESET,USERNAME);
         fgets(input, sizeof(input), stdin);
@@ -611,12 +629,8 @@ int main(void) {
                 continue;
             }
 
-            if(getcwd(buff, (size_t)size) != NULL) {
-                printf(BLUE"%s\n"RESET, buff);
-            } else {
-                perror("getcwd");
-            }
-
+            if(getcwd(buff, (size_t)size)!=NULL)
+                printf(BLUE"%s\n"RESET, buff); 
             free(buff);
         } else if(strcmp(command,"cp")==0) {
             char *tokens[10];
@@ -728,7 +742,8 @@ int main(void) {
         } else if(strcmp(input,"info")==0) {
             print_neofetch();
         } else if(strcmp(input, "exit") == 0) {
-            save_to_file(&var);
+            save_to_file(buffer,&var);
+            free(buffer);
             printf(MAGENTA"Exiting...\n"RESET);
             return 0;
         } else {
