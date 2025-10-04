@@ -251,18 +251,11 @@ void delete_variable(Variable *var,char **input) {
         return;
     }
 
-    if(var->type[index] == TOKEN_VALUE) {
-        for(int i=index; i<var->counter-1; i++) {
-            strcpy(var->name[i],var->name[i+1]); 
-            var->value[i] = var->value[i+1];
-            var->type[i] = var->type[i+1];
-        }
-    } else if(var->type[index] == TOKEN_STRING) {
-        for(int i=index; i<var->counter-1; i++) {
-            strcpy(var->name[i],var->name[i+1]);
-            strcpy(var->stringValue[i],var->stringValue[i+1]);
-            var->type[i] = var->type[i+1];
-        }
+    for(int i=index; i<var->counter-1; i++) {
+        strcpy(var->name[i],var->name[i+1]); 
+        var->value[i] = var->value[i+1];
+        strcpy(var->stringValue[i],var->stringValue[i+1]);
+        var->type[i] = var->type[i+1];
     }
 
     var->counter--;
@@ -703,7 +696,7 @@ int main(void) {
 
             token = getNextToken(&ptr);
             if(token.type != TOKEN_STRING) {
-                printf("Error: Text must be in inside \"\"\n");
+                printf(RED"Error: Text must be inside \"\"\n"RESET);
                 fclose(file);
                 continue;
             }
