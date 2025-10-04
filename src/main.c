@@ -676,11 +676,11 @@ int main(void) {
                     continue;
                 }
 
-                char ch;
-                int countChars = 0;
-                while((ch = getc(file))!=EOF) countChars++;
+                fseek(file, 0, SEEK_END);
+                long size = ftell(file);
+
                 fclose(file);
-                printf("Total bytes of \"%s\" -> %d\n",tokens[1],countChars);
+                printf("Total bytes of \"%s\" -> %ld\n",tokens[1],size);
             } else {
                 printf(RED"Error: Invalid arguments count passed\n"RESET);
                 continue;
