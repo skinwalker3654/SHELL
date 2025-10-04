@@ -12,6 +12,7 @@ run:
 
 clean:
 	@echo "deleting executable..."
+	rm -rf data.txt
 	rm -rf $(TAR)
 
 .PHONY: run clean

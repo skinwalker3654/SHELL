@@ -130,6 +130,24 @@ typedef struct Variable {
     int counter;
 } Variable;
 
+void save_to_file(Variable *ptr) {
+    FILE *file = fopen("data.txt","w");
+    if(!file) {
+        printf("Error: Failed to open the file\n");
+        return;
+    }
+
+    for(int i=0; i<ptr->counter; i++) {
+        if(ptr->type[i] == TOKEN_VALUE) {
+            fprintf(file,"set %s=%f\n",ptr->name[i],ptr->value[i]);
+        } else {
+            fprintf(file,"set %s=\"%s\"\n",ptr->name[i],ptr->stringValue[i]);
+        }
+    }
+
+    fclose(file);
+}
+
 void parseTokens(char **input, Variable *var) {
     Token token = getNextToken(input);
     int idx = var->counter;
@@ -189,6 +207,19 @@ void parseTokens(char **input, Variable *var) {
     }
 
     var->counter++;
+}
+
+void load_from_file(Variable *ptr) {
+    FILE *file = fopen("data.txt","r");
+    if(!file) { return; }
+
+    char line[100];
+    while(fgets(line,sizeof(line),file)) {
+        char *ptrString = line;
+        parseTokens(&ptrString,ptr);
+    }
+
+    fclose(file);
 }
 
 void delete_variable(Variable *var,char **input) {
@@ -391,6 +422,7 @@ int main(void) {
     char command[50];
     Expr expr;
 
+    load_from_file(&var);
     while(1) {
         printf(BOLD CYAN"%s"RESET " " GREEN ">> " RESET,USERNAME);
         fgets(input, sizeof(input), stdin);
@@ -703,6 +735,7 @@ int main(void) {
         } else if(strcmp(input,"info")==0) {
             print_neofetch();
         } else if(strcmp(input, "exit") == 0) {
+            save_to_file(&var);
             printf(MAGENTA"Exiting...\n"RESET);
             return 0;
         } else {
