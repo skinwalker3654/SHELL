@@ -44,7 +44,7 @@ typedef struct Token {
 } Token;
 
 Token getNextToken(char **input) {
-    while (isspace(**input)) (*input)++;
+    while(isspace(**input)) (*input)++;
 
     if(isalpha(**input)) {
         Token token;
@@ -620,18 +620,8 @@ int main(void) {
                 continue;
             }
         } else if(strcmp(input,"pwd")==0) {
-            long size = pathconf(".", _PC_PATH_MAX);
-            if(size == -1) size = 4096;
-
-            char *buff = malloc((size_t)size);
-            if(buff == NULL) {
-                printf(RED"Error: Could not allocate buffer\n"RESET);
-                continue;
-            }
-
-            getcwd(buff, (size_t)size);
-            printf(BLUE"%s\n"RESET, buff); 
-
+             char *newBuff = get_pwd();
+             printf("%s\n",newBuff);
             free(buff);
         } else if(strcmp(command,"cp")==0) {
             char *tokens[10];
