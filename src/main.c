@@ -620,9 +620,18 @@ int main(void) {
                 continue;
             }
         } else if(strcmp(input,"pwd")==0) {
-             char *newBuff = get_pwd();
-             printf("%s\n",newBuff);
-            free(buff);
+            long size = pathconf(".",_PC_PATH_MAX);
+            if(size == -1) size = 4096;
+
+            char *newBuff = malloc((size_t)size);
+            if(!newBuff) {
+                printf(RED"Error: Memory allocation failed\n"RESET);
+                return 1;
+            }
+    
+            getcwd(newBuff, (size_t)size);
+            printf(BLUE"%s\n"RESET,newBuff);
+            free(newBuff);
         } else if(strcmp(command,"cp")==0) {
             char *tokens[10];
             int counter = 0;
