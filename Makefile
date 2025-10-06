@@ -1,10 +1,10 @@
-SRC = src/main.c
+SRC = src/main.c src/shell.c
 CC = gcc
 TAR = main
 
 $(TAR): $(SRC)
 	@echo "executing the code..."
-	$(CC) $< -o $@ -lm
+	$(CC) $^ -o $@ -lm
 
 run:
 	@echo "Running..."
