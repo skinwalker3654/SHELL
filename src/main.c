@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "shell.h"
 #include <stdlib.h>
+#include <sys/wait.h>
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
@@ -308,6 +309,33 @@ int main(void) {
             }
 
             printf(GREEN"File saved succesfully\n"RESET);
+        } else if(strcmp(command,"run")==0) {
+            char *tokens[10];
+            int counter = 0;
+
+            char *token = strtok(input," ");
+            while(token != NULL) {
+                tokens[counter++] = token;
+                token = strtok(NULL," ");
+            }
+
+            if(counter == 2) {
+                pid_t pid = fork();
+                if(pid == -1) {
+                    printf(RED"Error: Fork failed\n"RESET);
+                    continue;
+                } else if(pid == 0) {
+                    execl(tokens[1],tokens[1],NULL);
+                    printf(RED"Error: Invalid executable file\n"RESET);
+                    _exit(127);
+                } else {
+                    int status;
+                    waitpid(pid,&status,0);
+                }
+            } else {
+                printf(RED"Error: Invalid arguments count passed\n"RESET);
+                continue;
+            }
         } else if(strcmp(command,"delete")==0) {
             char *ptr = input;
             delete_variable(&var,&ptr);

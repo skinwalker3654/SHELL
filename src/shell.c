@@ -333,6 +333,7 @@ void help_command() {
     printf(CYAN"  cp <file1> <file2>        | copies the content of the first file to the second\n"RESET);
     printf(CYAN"  fsize <filename>          | it shows you the size of a file\n"RESET);
     printf(CYAN"  write <filename> <text>   | writes text into a file\n"RESET);
+    printf(CYAN"  run <filename>            | it runs executable files\n"RESET);
     printf(CYAN"  countvars                 | it shows you the total number of stored variables\n"RESET);
     printf(CYAN"  ls                        | prints directorys\n"RESET);
     printf(CYAN"  cls                       | clears the terminal screen\n"RESET);
