@@ -23,6 +23,9 @@ Token getNextToken(char **input) {
         } else if(strcmp(token.name,"calc")==0) {
             token.type = TOKEN_CALC;
             return token;
+        } else if(strcmp(token.name,"custom")==0) {
+            token.type = TOKEN_CUSTOM;
+            return token;
         } else {
             token.type = TOKEN_NAME;
             return token;
@@ -334,6 +337,7 @@ void help_command() {
     printf(CYAN"  fsize <filename>          | it shows you the size of a file\n"RESET);
     printf(CYAN"  write <filename> <text>   | writes text into a file\n"RESET);
     printf(CYAN"  run <filename>            | it runs executable files\n"RESET);
+    printf(CYAN"  custom <text>             | it executes an already made bash command that already exists\n"RESET);
     printf(CYAN"  countvars                 | it shows you the total number of stored variables\n"RESET);
     printf(CYAN"  ls                        | prints directorys\n"RESET);
     printf(CYAN"  cls                       | clears the terminal screen\n"RESET);

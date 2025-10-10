@@ -19,6 +19,7 @@ typedef enum {
     TOKEN_SET,
     TOKEN_CALC,
     TOKEN_ERR,
+    TOKEN_CUSTOM,
     TOKEN_NAME,
     TOKEN_STRING,
     TOKEN_EQUAL,

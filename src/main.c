@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include "shell.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <string.h>
@@ -150,7 +150,8 @@ int main(void) {
                 char prompt[100] = "touch ";
                 strcat(prompt,tokens[1]);
                 system(prompt);
-            } else {
+                printf(GREEN"File created succesfully\n"RESET);
+            } else { 
                 printf(RED"Error: Invalid arguments count passed\n"RESET);
                 continue;
             }
@@ -336,6 +337,16 @@ int main(void) {
                 printf(RED"Error: Invalid arguments count passed\n"RESET);
                 continue;
             }
+        } else if(strcmp(command,"custom")==0) {
+            char *content = input + strlen("custom");
+            while(isspace(*content)) content++;
+
+            if(strlen(content) == 0) {
+                printf(RED"Error: No command passed\n"RESET);
+                continue;
+            }
+
+            system(content);
         } else if(strcmp(command,"delete")==0) {
             char *ptr = input;
             delete_variable(&var,&ptr);
