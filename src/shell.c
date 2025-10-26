@@ -26,6 +26,9 @@ Token getNextToken(char **input) {
         } else if(strcmp(token.name,"custom")==0) {
             token.type = TOKEN_CUSTOM;
             return token;
+        } else if(strcmp(token.name,"square")==0) {
+            token.type = TOKEN_SQUARE;
+            return token;
         } else {
             token.type = TOKEN_NAME;
             return token;
@@ -220,6 +223,46 @@ void delete_variable(Variable *var,char **input) {
     printf(GREEN"Variable deleted succesfully\n"RESET);
 }
 
+int parseSquare(char **input,Variable *var,Token token,Expr *obj) {
+    token = getNextToken(input);
+    if(token.type != TOKEN_VALUE && token.type != TOKEN_NAME) {
+        printf(RED"Error: Invalid token -> %s\n"RESET,token.name);
+        return -1;
+    }
+
+    if(token.type == TOKEN_VALUE) {
+        obj->isName = 1;
+        obj->Squares.square_value = token.value;
+    } else {
+        int foundIdx = -1;
+        float variable_value;
+        for(int i=0; i<var->counter; i++) {
+            if(strcmp(token.name,var->name[i])==0) {
+                if(var->type[i] == TOKEN_STRING) {
+                    printf(RED"Error: Cannot do operations with strings\n"RESET);
+                    return -1;
+                }
+
+                foundIdx = 1;
+                variable_value = var->value[i];
+                break;
+            }
+        }
+
+        if(foundIdx == -1) {
+            printf(RED"Error: Variable with name '%s' not found\n"RESET,token.name);
+            return -1;
+        }
+        
+        obj->isName = 0;
+        strcpy(obj->Squares.varName,token.name);
+        obj->Squares.square_value = variable_value;
+    }
+
+    obj->type = TOKEN_SQUARE;
+    return 0;
+}
+
 Expr parseExpr(char **input,Variable *var) {
     Expr obj;
 
@@ -230,6 +273,12 @@ Expr parseExpr(char **input,Variable *var) {
     }
 
     token = getNextToken(input);
+    if(token.type == TOKEN_SQUARE) {
+        int check = parseSquare(input,var,token,&obj);
+        if(check == -1) return (Expr){.type=TOKEN_ERR};
+        else { return obj; }
+    }
+
     if(token.type == TOKEN_NAME) {
         int foundIdx1 = -1;
         float variable_value1;
@@ -328,8 +377,7 @@ void help_command() {
     printf(CYAN"  set <name>=<value>        | creates variables\n"RESET);
     printf(CYAN"  echo <string>             | prints a string\n"RESET);
     printf(CYAN"  echo $<variable>          | prints the variable and his value\n"RESET);
-    printf(CYAN"  calc <var1> <op> <var2>   | calculates the operation by the variables value\n"RESET);
-    printf(CYAN"  calc <num1> <op> <num2>   | calculates the operation by the values you passed\n"RESET);
+    printf(CYAN"  CALC HELP                 | This command prints the usages of 'calc' command\n"RESET);
     printf(CYAN"  create <filename>         | creates a file\n"RESET);
     printf(CYAN"  rm <filename>             | deletes a file\n"RESET);
     printf(CYAN"  cd <directory>            | goes to a different directory\n"RESET);
@@ -337,7 +385,7 @@ void help_command() {
     printf(CYAN"  fsize <filename>          | it shows you the size of a file\n"RESET);
     printf(CYAN"  write <filename> <text>   | writes text into a file\n"RESET);
     printf(CYAN"  run <filename>            | it runs executable files\n"RESET);
-    printf(CYAN"  custom <text>             | it executes an already made bash command that already exists\n"RESET);
+    printf(CYAN"  custom <text>             | it executes an already existing bash command\n"RESET);
     printf(CYAN"  countvars                 | it shows you the total number of stored variables\n"RESET);
     printf(CYAN"  ls                        | prints directorys\n"RESET);
     printf(CYAN"  cls                       | clears the terminal screen\n"RESET);
@@ -349,6 +397,16 @@ void help_command() {
     printf(CYAN"  delete <varname>          | deletes a variable\n"RESET);
     printf(CYAN"  help                      | shows this pannel\n"RESET);
     printf(CYAN"  exit                      | closes the program\n\n");
+}
+
+void print_calc_command() {
+    printf(GREEN"\nCALC COMMAND: This command executes basic math operations with numbers or variables\n\n"RESET);
+    printf("Usage: "); 
+    printf(CYAN"calc <num/vaiable> <op> <num/variable>\n"RESET);
+    printf("Available operations: ");
+    printf(CYAN"'+' '-' '*' '/' '^'\n\n"RESET);
+    printf(GREEN"You can also find square roots: "); 
+    printf(CYAN"calc square <num/var>\n\n"RESET);
 }
 
 void print_fetch() {

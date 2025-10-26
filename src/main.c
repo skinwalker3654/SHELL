@@ -33,6 +33,16 @@ int main(void) {
             expr = parseExpr(&ptr,&var);
 
             if(expr.type == TOKEN_ERR) { continue; }
+            if(expr.type == TOKEN_SQUARE) {
+                if(expr.isName == 0) {
+                    printf("Square root of %s = %.2f\n",expr.Squares.varName,sqrt(expr.Squares.square_value));
+                    continue;
+                } else if(expr.isName == 1) {
+                    printf("Square root of %.2f = %.2f\n",expr.Squares.square_value,sqrt(expr.Squares.square_value));
+                    continue;
+                }
+            }
+
             if(strcmp(expr.op,"+")==0) {
                 printf("%.2f\n",expr.valuevar1+expr.valuevar2);
             } else if(strcmp(expr.op,"-")==0) {
@@ -246,6 +256,7 @@ int main(void) {
 
                 fclose(file1);
                 fclose(file2);
+                printf(GREEN"File copied succesfully to '%s'\n"RESET,tokens[2]);
             } else {
                 printf(RED"Error: Invalid arguments count passed\n"RESET);
                 continue;
@@ -362,6 +373,8 @@ int main(void) {
             help_command();
         } else if(strcmp(input,"info")==0) {
             print_fetch();
+        } else if(strcmp(input,"CALC HELP")==0) {
+            print_calc_command();
         } else if(strcmp(input, "exit") == 0) {
             save_to_file(buffer,&var);
             free(buffer);

@@ -8,6 +8,7 @@ and use my compiler skills to create this.
 - prompt commands
 - advanced parsing
 - decent error handling
+- mathematical operations
 
 
 ### bash commands like
@@ -36,13 +37,14 @@ type the commands
 make
 make run
 ```
-to compile and run the program
+to compile and run the program.
 
-end run 
+---
+
+To delete the executables run
 ```bash
 make clean
 ```
-to delete the executable file
 
 ---
 

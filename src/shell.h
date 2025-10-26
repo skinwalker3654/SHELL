@@ -22,6 +22,7 @@ typedef enum {
     TOKEN_CUSTOM,
     TOKEN_NAME,
     TOKEN_STRING,
+    TOKEN_SQUARE,
     TOKEN_EQUAL,
     TOKEN_DOLLAR,
     TOKEN_VALUE,
@@ -58,12 +59,19 @@ typedef struct Expr {
     float valuevar1;
     char op[10];
     float valuevar2;
+    struct {
+        float square_value;
+        char varName[100];
+    } Squares;
+    int isName; //0 = name | 1 = number
     TokenType type;
 } Expr;
 
+int parseSquare(char **input,Variable *var,Token token,Expr *obj);
 Expr parseExpr(char **input,Variable *var);
 void show_file_content(char *fileName);
 void help_command(void);
+void print_calc_command(void);
 void print_fetch(void);
 char *find_pwd(void);
 
