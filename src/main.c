@@ -256,7 +256,7 @@ int main(void) {
 
                 fclose(file1);
                 fclose(file2);
-                printf(GREEN"File copied succesfully to '%s'\n"RESET,tokens[2]);
+                printf(GREEN"File has been copied succesfully into '%s'\n"RESET,tokens[2]);
             } else {
                 printf(RED"Error: Invalid arguments count passed\n"RESET);
                 continue;
