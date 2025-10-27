@@ -385,7 +385,7 @@ void help_command() {
     printf(CYAN"  fsize <filename>          | it shows you the size of a file\n"RESET);
     printf(CYAN"  write <filename> <text>   | writes text into a file\n"RESET);
     printf(CYAN"  run <filename>            | it runs executable files\n"RESET);
-    printf(CYAN"  custom <text>             | it executes an already existing bash command\n"RESET);
+    printf(CYAN"  custom <command>          | it executes an already existing bash command\n"RESET);
     printf(CYAN"  countvars                 | it shows you the total number of stored variables\n"RESET);
     printf(CYAN"  ls                        | prints directorys\n"RESET);
     printf(CYAN"  cls                       | clears the terminal screen\n"RESET);

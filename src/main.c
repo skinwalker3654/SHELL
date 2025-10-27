@@ -349,15 +349,24 @@ int main(void) {
                 continue;
             }
         } else if(strcmp(command,"custom")==0) {
-            char *content = input + strlen("custom");
-            while(isspace(*content)) content++;
-
-            if(strlen(content) == 0) {
-                printf(RED"Error: No command passed\n"RESET);
+            char *ptr = input;
+            Token token = getNextToken(&ptr);
+            token = getNextToken(&ptr);
+            if(token.type != TOKEN_STRING) {
+                printf(RED"Error: Command must be inside of \"\"\n"RESET);
                 continue;
             }
 
-            system(content);
+            char buff[100];
+            strcpy(buff,token.stringValue);
+
+            token = getNextToken(&ptr);
+            if(token.type != TOKEN_EOF) {
+                printf(RED"Error: Invalid arguments passed\n"RESET);
+                continue;
+            }
+            
+            system(buff);
         } else if(strcmp(command,"delete")==0) {
             char *ptr = input;
             delete_variable(&var,&ptr);
