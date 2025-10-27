@@ -401,6 +401,7 @@ void help_command() {
     printf(CYAN"  pwd                       |  prints current working directory\n"RESET);
     printf(CYAN"  show                      |  prints all the stored variables\n"RESET);
     printf(CYAN"  whoami                    |  shows users shell name\n"RESET);
+    printf(CYAN"  reset                     |  deletes every variable in the list\n"RESET);
     printf(CYAN"  cat <filename>            |  shows files content\n"RESET);
     printf(CYAN"  delete <varname>          |  deletes a variable\n"RESET);
     printf(CYAN"  help                      |  shows this pannel\n"RESET);
