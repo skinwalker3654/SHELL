@@ -62,14 +62,20 @@ Token getNextToken(char **input) {
         int counter = 0;
 
         (*input)++;
-        while(**input != '"' && **input != '\0') {
-            token.stringValue[counter] = **input;
+        while(**input != '\0' && !(**input == '"' && *(*input-1)!='\\')) {
+            if(**input == '\\' && *(*input+1) != '\0') {
+                (*input)++;
+                token.stringValue[counter] = **input;
+                counter++;
+            } else {
+                token.stringValue[counter] = **input;
+                counter++;
+            }
             (*input)++;
-            counter++;
         }
 
         token.stringValue[counter] = '\0';
-        (*input)++;
+        if(**input == '"') (*input)++;
 
         return token;
     }
@@ -120,7 +126,7 @@ void parseTokens(char **input, Variable *var) {
 
     token = getNextToken(input);
     if(token.type != TOKEN_NAME) {
-        printf(RED"Error: Invalid variable name\n"RESET);
+        printf(RED"Error: Invalid variable name '%s'\n"RESET,token.name);
         return;
     }
 
@@ -133,7 +139,7 @@ void parseTokens(char **input, Variable *var) {
     }
 
     if(foundIdx != -1) {
-        printf(RED"Error: This variable name already exists\n"RESET);
+        printf(RED"Error: This variable name already exists '%s'\n"RESET,token.name);
         return;
     }
 
@@ -146,7 +152,7 @@ void parseTokens(char **input, Variable *var) {
 
     token = getNextToken(input);
     if(token.type != TOKEN_VALUE && token.type != TOKEN_STRING) {
-        printf(RED"Error: Invalid variable value\n"RESET);
+        printf(RED"Error: Invalid value on variable '%s'\n"RESET,token.name);
         return;
     } else {
         if(token.type == TOKEN_VALUE) {
@@ -156,23 +162,23 @@ void parseTokens(char **input, Variable *var) {
             strcpy(var->stringValue[idx],token.stringValue);
             var->type[idx] = TOKEN_STRING;
         } else {
-            printf(RED"Error: Strings need \"\"\n"RESET);
+            printf(RED"Error: Strings must have \"\"\n"RESET);
             return;
         }
     }
 
     token = getNextToken(input);
     if(token.type != TOKEN_EOF) {
-        printf(RED"Error: Invalid arguments count passed\n"RESET);
+        printf(RED"Error: Invalid arguments passed\n"RESET);
         return;
     }
 
     var->counter++;
 }
 
-void load_from_file(char *fileName,Variable *ptr) {
+int load_from_file(char *fileName,Variable *ptr) {
     FILE *file = fopen(fileName,"r");
-    if(!file) { return; }
+    if(!file) { return -1; }
 
     char line[100];
     while(fgets(line,sizeof(line),file)) {
@@ -181,6 +187,7 @@ void load_from_file(char *fileName,Variable *ptr) {
     }
 
     fclose(file);
+    return 0;
 }
 
 void delete_variable(Variable *var,char **input) {
@@ -220,13 +227,13 @@ void delete_variable(Variable *var,char **input) {
     }
 
     var->counter--;
-    printf(GREEN"Variable deleted succesfully\n"RESET);
+    printf(GREEN"Variable '%s' deleted succesfully\n"RESET,token.name);
 }
 
 int parseSquare(char **input,Variable *var,Token token,Expr *obj) {
     token = getNextToken(input);
     if(token.type != TOKEN_VALUE && token.type != TOKEN_NAME) {
-        printf(RED"Error: Invalid token -> %s\n"RESET,token.name);
+        printf(RED"Error: Invalid token '%s'\n"RESET,token.name);
         return -1;
     }
 
@@ -374,29 +381,30 @@ void show_file_content(char *fileName) {
 
 void help_command() {
     printf("\nCommands:\n");
-    printf(CYAN"  set <name>=<value>        | creates variables\n"RESET);
-    printf(CYAN"  echo <string>             | prints a string\n"RESET);
-    printf(CYAN"  echo $<variable>          | prints the variable and his value\n"RESET);
-    printf(CYAN"  CALC HELP                 | This command prints the usages of 'calc' command\n"RESET);
-    printf(CYAN"  create <filename>         | creates a file\n"RESET);
-    printf(CYAN"  rm <filename>             | deletes a file\n"RESET);
-    printf(CYAN"  cd <directory>            | goes to a different directory\n"RESET);
-    printf(CYAN"  cp <file1> <file2>        | copies the content of the first file to the second\n"RESET);
-    printf(CYAN"  fsize <filename>          | it shows you the size of a file\n"RESET);
-    printf(CYAN"  write <filename> <text>   | writes text into a file\n"RESET);
-    printf(CYAN"  run <filename>            | it runs executable files\n"RESET);
-    printf(CYAN"  custom <command>          | it executes an already existing bash command\n"RESET);
-    printf(CYAN"  countvars                 | it shows you the total number of stored variables\n"RESET);
-    printf(CYAN"  ls                        | prints directorys\n"RESET);
-    printf(CYAN"  cls                       | clears the terminal screen\n"RESET);
-    printf(CYAN"  info                      | prints systems information\n"RESET);
-    printf(CYAN"  pwd                       | prints current working directory\n"RESET);
-    printf(CYAN"  show                      | prints all the stored variables\n"RESET);
-    printf(CYAN"  whoami                    | shows users shell name\n"RESET);
-    printf(CYAN"  cat <filename>            | shows files content\n"RESET);
-    printf(CYAN"  delete <varname>          | deletes a variable\n"RESET);
-    printf(CYAN"  help                      | shows this pannel\n"RESET);
-    printf(CYAN"  exit                      | closes the program\n\n");
+    printf(CYAN"  set <name>=<value>        |  creates variables\n"RESET);
+    printf(CYAN"  echo <string>             |  prints a string\n"RESET);
+    printf(CYAN"  echo $<variable>          |  prints the variable and his value\n"RESET);
+    printf(CYAN"  CALC HELP                 |  This command prints the usages of 'calc' command\n"RESET);
+    printf(CYAN"  create <filename>         |  creates a file\n"RESET);
+    printf(CYAN"  rm <filename>             |  deletes a file\n"RESET);
+    printf(CYAN"  cd <directory>            |  goes to a different directory\n"RESET);
+    printf(CYAN"  cp <file1> <file2>        |  copies the content of the first file to the second\n"RESET);
+    printf(CYAN"  fsize <filename>          |  it shows you the size of a file\n"RESET);
+    printf(CYAN"  write <filename> <text>   |  writes text into a file\n"RESET);
+    printf(CYAN"  run <filename>            |  it runs executable files\n"RESET);
+    printf(CYAN"  custom <command>          |  it executes an already existing bash command\n"RESET);
+    printf(CYAN"  load <filename>           |  loads the filenames script\n"RESET);
+    printf(CYAN"  countvars                 |  it shows you the total number of stored variables\n"RESET);
+    printf(CYAN"  ls                        |  prints directorys\n"RESET);
+    printf(CYAN"  cls                       |  clears the terminal screen\n"RESET);
+    printf(CYAN"  info                      |  prints systems information\n"RESET);
+    printf(CYAN"  pwd                       |  prints current working directory\n"RESET);
+    printf(CYAN"  show                      |  prints all the stored variables\n"RESET);
+    printf(CYAN"  whoami                    |  shows users shell name\n"RESET);
+    printf(CYAN"  cat <filename>            |  shows files content\n"RESET);
+    printf(CYAN"  delete <varname>          |  deletes a variable\n"RESET);
+    printf(CYAN"  help                      |  shows this pannel\n"RESET);
+    printf(CYAN"  exit                      |  closes the program\n\n");
 }
 
 void print_calc_command() {

@@ -382,6 +382,22 @@ int main(void) {
             help_command();
         } else if(strcmp(input,"info")==0) {
             print_fetch();
+        } else if(strcmp(command,"load")==0) {
+            char *tokens[10];
+            int counter = 0;
+
+            char *token = strtok(input," ");
+            while(token != NULL) {
+                tokens[counter++] = token;
+                token = strtok(NULL," ");
+            }
+
+            if(counter == 2)  {
+                if(load_from_file(tokens[1],&var)==-1) 
+                    printf(RED"Error: File '%s' does not exists\n"RESET,tokens[1]);
+            } else {
+                printf(RED"Error: Invalid arguments passed\n"RESET); 
+            }
         } else if(strcmp(input,"CALC HELP")==0) {
             print_calc_command();
         } else if(strcmp(input, "exit") == 0) {

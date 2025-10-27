@@ -52,7 +52,7 @@ typedef struct Variable {
 
 void save_to_file(char *fileName,Variable *ptr);
 void parseTokens(char **input,Variable *var);
-void load_from_file(char *fileName,Variable *ptr);
+int load_from_file(char *fileName,Variable *ptr);
 void delete_variable(Variable *var,char **input);
 
 typedef struct Expr {
