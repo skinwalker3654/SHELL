@@ -29,6 +29,9 @@ Token getNextToken(char **input) {
         } else if(strcmp(token.name,"square")==0) {
             token.type = TOKEN_SQUARE;
             return token;
+        } else if(strcmp(token.name,"write")==0) {
+            token.type = TOKEN_WRITE;
+            return token;
         } else {
             token.type = TOKEN_NAME;
             return token;
@@ -381,31 +384,30 @@ void show_file_content(char *fileName) {
 
 void help_command() {
     printf("\nCommands:\n");
-    printf(CYAN"  set <name>=<value>        |  creates variables\n"RESET);
-    printf(CYAN"  echo <string>             |  prints a string\n"RESET);
-    printf(CYAN"  echo $<variable>          |  prints the variable and his value\n"RESET);
-    printf(CYAN"  CALC HELP                 |  This command prints the usages of 'calc' command\n"RESET);
-    printf(CYAN"  create <filename>         |  creates a file\n"RESET);
-    printf(CYAN"  rm <filename>             |  deletes a file\n"RESET);
-    printf(CYAN"  cd <directory>            |  goes to a different directory\n"RESET);
-    printf(CYAN"  cp <file1> <file2>        |  copies the content of the first file to the second\n"RESET);
-    printf(CYAN"  fsize <filename>          |  it shows you the size of a file\n"RESET);
-    printf(CYAN"  write <filename> <text>   |  writes text into a file\n"RESET);
-    printf(CYAN"  run <executable>          |  it runs executable files\n"RESET);
-    printf(CYAN"  custom <command>          |  it executes an already existing bash command\n"RESET);
-    printf(CYAN"  load <filename>           |  loads the filenames script\n"RESET);
-    printf(CYAN"  countvars                 |  it shows you the total number of stored variables\n"RESET);
-    printf(CYAN"  ls                        |  prints directorys\n"RESET);
-    printf(CYAN"  cls                       |  clears the terminal screen\n"RESET);
-    printf(CYAN"  info                      |  prints systems information\n"RESET);
-    printf(CYAN"  pwd                       |  prints current working directory\n"RESET);
-    printf(CYAN"  show                      |  prints all the stored variables\n"RESET);
-    printf(CYAN"  whoami                    |  shows users shell name\n"RESET);
-    printf(CYAN"  reset                     |  deletes every variable in the list\n"RESET);
-    printf(CYAN"  cat <filename>            |  shows files content\n"RESET);
-    printf(CYAN"  delete <varname>          |  deletes a variable\n"RESET);
-    printf(CYAN"  help                      |  shows this pannel\n"RESET);
-    printf(CYAN"  exit                      |  closes the program\n\n");
+    printf(CYAN"  set <name>=<value>           |  creates variables\n"RESET);
+    printf(CYAN"  echo <string>                |  prints a string\n"RESET);
+    printf(CYAN"  echo $<variable>             |  prints the variable and his value\n"RESET);
+    printf(CYAN"  CALC HELP                    |  This command prints the usages of 'calc' command\n"RESET);
+    printf(CYAN"  create <fileName>            |  creates a file\n"RESET);
+    printf(CYAN"  rm <fileName>                |  deletes a file\n"RESET);
+    printf(CYAN"  cd <directory>               |  goes to a different directory\n"RESET);
+    printf(CYAN"  cp <file1> <file2>           |  copies the content of the first file to the second\n"RESET);
+    printf(CYAN"  fsize <filename>             |  it shows you the size of a file\n"RESET);
+    printf(CYAN"  write <fileName> <endPoint>  |  writes text into a file till you type the endPoint\n"RESET);
+    printf(CYAN"  run <executable>             |  it runs executable files\n"RESET);
+    printf(CYAN"  custom <command>             |  it executes an already existing bash command\n"RESET);
+    printf(CYAN"  load <fileName>              |  loads the filenames script\n"RESET);
+    printf(CYAN"  countvars                    |  it shows you the total number of stored variables\n"RESET);
+    printf(CYAN"  ls                           |  prints directorys\n"RESET);
+    printf(CYAN"  cls                          |  clears the terminal screen\n"RESET);
+    printf(CYAN"  info                         |  prints systems information\n"RESET);
+    printf(CYAN"  show                         |  prints all the stored variables\n"RESET);
+    printf(CYAN"  whoami                       |  shows users shell name\n"RESET);
+    printf(CYAN"  reset                        |  deletes every variable in the list\n"RESET);
+    printf(CYAN"  cat <fileName>               |  shows files content\n"RESET);
+    printf(CYAN"  delete <varName>             |  deletes a variable\n"RESET);
+    printf(CYAN"  help                         |  shows this pannel\n"RESET);
+    printf(CYAN"  exit                         |  closes the program\n\n");
 }
 
 void print_calc_command() {
@@ -431,14 +433,8 @@ void print_fetch() {
 
 char *find_pwd() {
     long size = pathconf(".",_PC_PATH_MAX);
-    if(size == -1) size = 4096;
-
-    char *buff = malloc((size_t)size);
-    if(!buff) {
-        printf(RED"Error: Memory allocation failed\n"RESET);
-        return NULL;
-    }
-
+    char *buff = malloc(100);
+    if(!buff) return NULL;
     getcwd(buff, (size_t)size);
     strcat(buff,"/data.txt");
     return buff;

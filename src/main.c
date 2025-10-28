@@ -18,7 +18,13 @@ int main(void) {
 
     load_from_file(buffer,&var);
     while(1) {
-        printf(BOLD CYAN"%s"RESET " " GREEN ">> " RESET,USERNAME);
+        long size = pathconf(".",_PC_PATH_MAX);
+        char buff[100];
+        getcwd(buff,(size_t)size);
+
+        printf(BOLD CYAN"%s: "RESET,USERNAME);
+        printf(BLUE"%s "RESET,buff);
+        printf(GREEN">> "RESET);
         fgets(input, sizeof(input), stdin);
         input[strcspn(input, "\n")] = 0;
 
@@ -213,19 +219,6 @@ int main(void) {
                 printf(RED"Error: Invalid arguments count passed\n"RESET);
                 continue;
             }
-        } else if(strcmp(input,"pwd")==0) {
-            long size = pathconf(".",_PC_PATH_MAX);
-            if(size == -1) size = 4096;
-
-            char *newBuff = malloc((size_t)size);
-            if(!newBuff) {
-                printf(RED"Error: Memory allocation failed\n"RESET);
-                return 1;
-            }
-    
-            getcwd(newBuff, (size_t)size);
-            printf(BLUE"%s\n"RESET,newBuff);
-            free(newBuff);
         } else if(strcmp(command,"cp")==0) {
             char *tokens[10];
             int counter = 0;
@@ -289,37 +282,48 @@ int main(void) {
             }
         } else if(strcmp(command,"write")==0) {
             char *ptr = input;
-            getNextToken(&ptr);
-
             Token token = getNextToken(&ptr);
+
+            token = getNextToken(&ptr);
             if(token.type != TOKEN_NAME) {
-                printf(RED"Error: Invalid file name '%s'\n"RESET,token.name);
+                printf(RED"Error: Invalid FileName '%s'\n"RESET,token.name);
                 continue;
             }
 
-            FILE *file = fopen(token.name,"a");
-            if(!file) {
+            char fileName[100];
+            strcpy(fileName,token.name);
+
+            token = getNextToken(&ptr);
+            if(token.type != TOKEN_STRING) {
+                printf(RED"Error: EndPoint must be inside of \"\"\n"RESET);
+                continue;
+            }
+
+            char endPoint[100];
+            strcpy(endPoint,token.stringValue);
+
+            token = getNextToken(&ptr);
+            if(token.type != TOKEN_EOF) {
+                printf(RED"Error: Invalid arguments passed\n"RESET);
+                continue;
+            }
+
+            FILE *file = fopen(fileName,"w");
+            if(file == NULL) {
                 printf(RED"Error: Failed to open the file\n"RESET);
                 continue;
             }
 
-            token = getNextToken(&ptr);
-            if(token.type != TOKEN_STRING) {
-                printf(RED"Error: Text must be inside \"\"\n"RESET);
-                fclose(file);
-                continue;
+            char line[100];
+            while(1) {
+                printf("> ");
+                fgets(line,sizeof(line),stdin);
+                line[strcspn(line,"\n")] = 0;
+                if(strcmp(line,endPoint)==0) break;
+                fprintf(file,"%s\n",line);
             }
 
-            fprintf(file,"%s\n",token.stringValue);
             fclose(file);
-
-            token = getNextToken(&ptr);
-            if(token.type != TOKEN_EOF) {
-                printf(RED"Error: Invalid arguments count passed\n"RESET);
-                fclose(file);
-                continue;
-            }
-
             printf(GREEN"File saved succesfully\n"RESET);
         } else if(strcmp(command,"run")==0) {
             char *tokens[10];
@@ -393,10 +397,13 @@ int main(void) {
             }
 
             if(counter == 2)  {
-                if(load_from_file(tokens[1],&var)==-1) 
+                if(load_from_file(tokens[1],&var)==-1) {
                     printf(RED"Error: File '%s' does not exists\n"RESET,tokens[1]);
+                    continue;
+                }
             } else {
                 printf(RED"Error: Invalid arguments passed\n"RESET); 
+                continue;
             }
         } else if(strcmp(input,"reset")==0) {
             var.counter=0; 

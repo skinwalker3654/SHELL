@@ -31,6 +31,7 @@ typedef enum {
     TOKEN_MULT,
     TOKEN_DIVI,
     TOKEN_POWE,
+    TOKEN_WRITE,
     TOKEN_EOF,
 } TokenType;
 
