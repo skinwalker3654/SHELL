@@ -308,6 +308,13 @@ int main(void) {
                 continue;
             }
 
+            FILE *fileTest = fopen(fileName,"r");
+            if(fileTest == NULL) {
+                printf(RED"Error: File '%s' does not exists\n"RESET,fileName);
+                continue;
+            }
+
+            fclose(fileTest);
             FILE *file = fopen(fileName,"w");
             if(file == NULL) {
                 printf(RED"Error: Failed to open the file\n"RESET);
