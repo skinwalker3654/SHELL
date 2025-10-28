@@ -424,6 +424,7 @@ int main(void) {
             return 0;
         } else {
             printf(RED"Error: Invalid command '%s'\n"RESET, input);
+            printf(RED"Type: 'help' for more details\n"RESET);
             continue;
         }
     }
