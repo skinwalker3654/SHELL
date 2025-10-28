@@ -79,6 +79,10 @@ Token getNextToken(char **input) {
 
         token.stringValue[counter] = '\0';
         if(**input == '"') (*input)++;
+        else { 
+            printf(RED"Error: Forgot to close the parenthesis -> \"\n"RESET);
+            return (Token){TOKEN_ERR};
+        }
 
         return token;
     }
