@@ -101,10 +101,10 @@ int main(void) {
                 }
 
                 if(var.type[indexIdx] == TOKEN_STRING) {
-                    printf("%s = \"%s\"\n",var.name[indexIdx],var.stringValue[indexIdx]);
+                    printf("%s\n",var.stringValue[indexIdx]);
                     continue;
                 } else {
-                    printf("%s = %.2f\n",var.name[indexIdx],var.value[indexIdx]);
+                    printf("%.2f\n",var.value[indexIdx]);
                     continue;
                 }
             } else if(token.type == TOKEN_NAME) {
