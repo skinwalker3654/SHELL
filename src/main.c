@@ -382,7 +382,7 @@ int main(void) {
             char *ptr = input;
             delete_variable(&var,&ptr);
         } else if(strcmp(input,"whoami")==0) {
-            printf(BLUE"USER: "RESET CYAN"%s"RESET " | " BLUE "PASSWORD: "RESET CYAN"%d\n"RESET,USERNAME,PASSWORD);
+            printf(BLUE"USERNAME: "RESET CYAN"%s"RESET " | " BLUE "PASSWORD: "RESET CYAN"%d\n"RESET,USERNAME,PASSWORD);
         } else if(strcmp(input,"countvars")==0) {
             printf(BLUE"Total variables: %d\n"RESET,var.counter);
         } else if(strcmp(input,"cls")==0) {
