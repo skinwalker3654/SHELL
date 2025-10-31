@@ -415,7 +415,8 @@ void help_command() {
 }
 
 void print_calc_command() {
-    printf(GREEN"\nCALC COMMAND: This command executes basic math operations with numbers or variables\n\n"RESET);
+    printf(GREEN"\nCALC COMMAND: "RESET);
+    printf(CYAN"This command executes basic math operations with numbers or variables\n\n"RESET);
     printf("Usage: "); 
     printf(CYAN"calc <num/vaiable> <op> <num/variable>\n"RESET);
     printf("Available operations: ");
