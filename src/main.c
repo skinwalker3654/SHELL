@@ -414,7 +414,7 @@ int main(void) {
             }
         } else if(strcmp(input,"reset")==0) {
             var.counter=0; 
-            printf(GREEN"Data reseted succesfully\n"RESET);
+            printf(GREEN"Data has been reseted succesfully\n"RESET);
         } else if(strcmp(input,"CALC HELP")==0) {
             print_calc_command();
         } else if(strcmp(input, "exit") == 0) {
