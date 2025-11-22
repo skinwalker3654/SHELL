@@ -7,6 +7,11 @@
 #include <ctype.h>
 #include <math.h>
 
+typedef struct File_Write {
+    char line[200][256];
+    int counter;
+} File_Write;
+
 int main(void) {
     Variable var = {.counter = 0};
     char input[100];
@@ -16,7 +21,9 @@ int main(void) {
     char *buffer = find_pwd();
     if(buffer == NULL) return 1;
 
+    File_Write file_ = {.counter=0};
     load_from_file(buffer,&var);
+
     while(1) {
         long size = pathconf(".",_PC_PATH_MAX);
         char buff[100];
@@ -314,10 +321,23 @@ int main(void) {
                 continue;
             }
 
+            file_.counter = 0;
+            char lineCheck[256];
+            while(fgets(lineCheck,sizeof(lineCheck),fileTest)) {
+                lineCheck[strcspn(lineCheck,"\n")] = 0;
+                strcpy(file_.line[file_.counter],lineCheck); 
+                file_.counter++;
+            }
+
             fclose(fileTest);
             FILE *file = fopen(fileName,"w");
             if(file == NULL) {
                 printf(RED"Error: Failed to open the file\n"RESET);
+                continue;
+            }
+
+            if(strcmp(endPoint,"/show")==0) {
+                printf(RED"Error: Invalid endPoint '%s' you cannot add this keyword as an endPoint\n",endPoint);
                 continue;
             }
 
@@ -326,9 +346,44 @@ int main(void) {
                 printf("> ");
                 fgets(line,sizeof(line),stdin);
                 line[strcspn(line,"\n")] = 0;
+
+                int number;
+                if(sscanf(line,"/up %d",&number)==1) {
+                    if(number < 1 || number > file_.counter+1) {
+                        printf(RED"Error: Invalid size of number %d\n"RESET,number);
+                        continue;
+                    }
+
+                    printf("%s : change this to > ",file_.line[number-1]);
+                    fgets(line,sizeof(line),stdin);
+                    line[strcspn(line,"\n")] = 0;
+
+                    strcpy(file_.line[number-1],line);
+                    continue;
+                }
+
+                if(strcmp(line,"/show")==0) {
+                    for(int i=0; i<file_.counter; i++) 
+                        printf("%d. %s\n",i+1,file_.line[i]);
+                    continue;
+                }
+
+                int number2;
+                if(sscanf(line,"/del %d",&number2)==1) {
+                    for(int i=number2-1; i<file_.counter; i++) 
+                        strcpy(file_.line[i],file_.line[i+1]);
+                    file_.counter--;
+                    continue;
+                }
+
                 if(strcmp(line,endPoint)==0) break;
-                fprintf(file,"%s\n",line);
+
+                strcpy(file_.line[file_.counter],line);
+                file_.counter++;
             }
+
+            for(int i=0; i<file_.counter; i++)
+                fprintf(file,"%s\n",file_.line[i]);
 
             fclose(file);
             printf(GREEN"File saved succesfully\n"RESET);
