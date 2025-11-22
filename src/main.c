@@ -348,7 +348,7 @@ int main(void) {
                 line[strcspn(line,"\n")] = 0;
 
                 int number;
-                if(sscanf(line,"/up %d",&number)==1) {
+                if(sscanf(line,"/goto %d",&number)==1) {
                     if(number < 1 || number > file_.counter+1) {
                         printf(RED"Error: Invalid size of number %d\n"RESET,number);
                         continue;
