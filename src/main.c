@@ -213,7 +213,9 @@ int main(void) {
 
             if(counter == 2) {
                 if(strcmp(tokens[1],"~")==0) {
-                    chdir("/home/skinwalker");
+                    char buff[100] = "/home/";
+                    strcat(buff,USERNAME);
+                    chdir(buff);
                     continue;
                 }
 
@@ -336,7 +338,10 @@ int main(void) {
                 continue;
             }
 
-            if(strcmp(endPoint,"/show")==0) {
+            int number;
+            if(strcmp(endPoint,"/show")==0 
+                    || sscanf(endPoint,"/goto %d",&number)==1
+                    || sscanf(endPoint,"/del %d",&number)==1) {
                 printf(RED"Error: Invalid endPoint '%s' you cannot add this keyword as an endPoint\n",endPoint);
                 continue;
             }
@@ -347,18 +352,18 @@ int main(void) {
                 fgets(line,sizeof(line),stdin);
                 line[strcspn(line,"\n")] = 0;
 
-                int number;
-                if(sscanf(line,"/goto %d",&number)==1) {
-                    if(number < 1 || number > file_.counter+1) {
-                        printf(RED"Error: Invalid size of number %d\n"RESET,number);
+                int number1;
+                if(sscanf(line,"/goto %d",&number1)==1) {
+                    if(number1 < 1 || number1 > file_.counter+1) {
+                        printf(RED"Error: Invalid size of number %d\n"RESET,number1);
                         continue;
                     }
 
-                    printf("%s : change this to > ",file_.line[number-1]);
+                    printf("%s : change this to > ",file_.line[number1-1]);
                     fgets(line,sizeof(line),stdin);
                     line[strcspn(line,"\n")] = 0;
 
-                    strcpy(file_.line[number-1],line);
+                    strcpy(file_.line[number1-1],line);
                     continue;
                 }
 
