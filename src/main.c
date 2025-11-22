@@ -341,7 +341,8 @@ int main(void) {
             int number;
             if(strcmp(endPoint,"/show")==0 
                     || sscanf(endPoint,"/goto %d",&number)==1
-                    || sscanf(endPoint,"/del %d",&number)==1) {
+                    || sscanf(endPoint,"/del %d",&number)==1 
+                    || sscanf(endPoint,"/repup %d",&number)==1) {
                 printf(RED"Error: Invalid endPoint '%s' you cannot add this keyword as an endPoint\n",endPoint);
                 continue;
             }
@@ -378,6 +379,20 @@ int main(void) {
                     for(int i=number2-1; i<file_.counter; i++) 
                         strcpy(file_.line[i],file_.line[i+1]);
                     file_.counter--;
+                    continue;
+                }
+
+                int number3;
+                if(sscanf(line,"/repup %d",&number3)==1) {
+                    char buff[256];
+                    printf("replace %s to > ",file_.line[number3-1]);
+                    fgets(buff,sizeof(buff),stdin);
+                    buff[strcspn(buff,"\n")] = 0;
+    
+                    for(int i=file_.counter-1; i>=number3-1; i--) 
+                        strcpy(file_.line[i+1],file_.line[i]);
+                    strcpy(file_.line[number3-1],buff);
+                    file_.counter++;
                     continue;
                 }
 
