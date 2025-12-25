@@ -422,7 +422,7 @@ void print_calc_command() {
     printf("Available operations: ");
     printf(CYAN"'+' '-' '*' '/' '^'\n\n"RESET);
     printf(GREEN"You can also find square roots: "); 
-    printf(CYAN"calc square <num/var>\n\n"RESET);
+    printf(CYAN"calc square <num/variable>\n\n"RESET);
 }
 
 void print_fetch() {
